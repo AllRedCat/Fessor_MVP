@@ -21,8 +21,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex flex-col justify-center items-center bg-indigo-900">
-        <CircularProgress size={80} color='success' />
+      <div className="w-full h-screen flex flex-col justify-center items-center bg-black/10 dark:bg-white/10">
+        <CircularProgress size={80} />
       </div>
     );
   }

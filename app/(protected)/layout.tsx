@@ -1,4 +1,5 @@
 import NavBar from '@/components/navbar';
+import { ProtectedRoute } from '@/components/protected-route';
 
 export default function ProtectedLayout({
     children,
@@ -6,9 +7,9 @@ export default function ProtectedLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="min-h-screen">
+        <ProtectedRoute>
             <NavBar />
             {children}
-        </div>
+        </ProtectedRoute>
     );
 }

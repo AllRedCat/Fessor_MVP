@@ -11,11 +11,10 @@ export default function NavBar() {
     const { user, logout } = useAuth();
 
     const [letters, setLetters] = useState<string>();
+    const [route, setRoute] = useState<string>();
 
     useEffect(() => {
         let names = user?.displayName?.split(' ');
-        console.log(names);
-
         if (names && Array.isArray(names)) {
             const initials = names.map((n: string) => n[0]).join('');
             setLetters(initials);
@@ -23,6 +22,13 @@ export default function NavBar() {
             setLetters('');
         }
     }, [user]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setRoute(window.location.pathname);
+            console.log(window.location.pathname);
+        }
+    }, []);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -42,8 +48,31 @@ export default function NavBar() {
     };
 
     return (
-        <div className="w-full flex justify-between items-center border-b py-4 px-8 bg-white/10">
+        <div className="w-full flex justify-between items-center border-b border-black/10 dark:border-white/10 px-8 bg-white/10">
             <h1 className="text-2xl font-bold">Fessor</h1>
+            <div className='flex justify-center items-center gap-4'>
+                <button
+                    className={`cursor-pointer hover:text-black/50 dark:hover:text-white/50
+                    p-5 border-b-4 ${route === '/dashboard' ? 'border-black dark:border-white font-bold' : 'border-transparent'}`}
+                    onClick={() => window.location.href = "/dashboard"}
+                >
+                    Dashboard
+                </button>
+                <button
+                    className={`cursor-pointer hover:text-black/50 dark:hover:text-white/50
+                    p-5 border-b-4 ${route === '/chat' ? 'border-black dark:border-white font-bold' : 'border-transparent'}`}
+                    onClick={() => window.location.href = "/chat"}
+                >
+                    Chat IA
+                </button>
+                <button
+                    className={`cursor-pointer hover:text-black/50 dark:hover:text-white/50
+                    p-5 border-b-4 ${route === '/reports' ? 'border-black dark:border-white font-bold' : 'border-transparent'}`}
+                    onClick={() => window.location.href = "/reports"}
+                >
+                    Relatórios
+                </button>
+            </div>
             <Stack direction="row" spacing={2} className='flex items-center'>
                 <span className=''>
                     Olá, {user?.displayName || user?.email}
@@ -69,6 +98,7 @@ export default function NavBar() {
                         },
                     }}
                 >
+                    {/* // TODO: paginas para gestão de usuário */}
                     <MenuItem onClick={handleClose}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>My account</MenuItem>
                     <MenuItem onClick={handleLogout}>Sair</MenuItem>
