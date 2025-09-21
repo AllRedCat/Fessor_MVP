@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (loading) {
     return (
       <div className="w-full h-screen flex flex-col justify-center items-center bg-indigo-900">
-        <div className="text-white text-xl">Carregando...</div>
+        <CircularProgress size={80} color='success' />
       </div>
     );
   }

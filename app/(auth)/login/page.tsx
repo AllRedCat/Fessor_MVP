@@ -22,11 +22,29 @@ export default function LoginPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
+        if (!email || email.trim().length === 0) {
+            alert('Por favor, digite seu email.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!password || password.trim().length === 0) {
+            alert('Por favor, digite sua senha.');
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            await login(email, password);
+            await login(email.trim(), password);
             router.push('/dashboard');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro no login:', error);
+            if (error.code) {
+                if (!error.message || error.message.includes('FirebaseError')) {
+                } else {
+                    // alert('Erro inesperado. Tente novamente.');
+                }
+            }
         } finally {
             setIsLoading(false);
         }
@@ -50,8 +68,16 @@ export default function LoginPage() {
         <div className="md:min-w-md py-8 bg-white/30 backdrop-blur-md flex flex-col justify-center items-center rounded-4xl">
             <h1 className="text-3xl font-bold">Login</h1>
             {error && (
-                <div className="w-[80%] mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-md text-red-200 text-sm">
-                    {error}
+                <div className="w-[80%] mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-md text-red-200 text-sm flex items-center space-x-2">
+                    <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                    <div className="flex-1">
+                        <p className="font-medium">Erro no Login</p>
+                        <p className="text-sm opacity-90">{error}</p>
+                    </div>
                 </div>
             )}
             <button

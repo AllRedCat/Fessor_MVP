@@ -36,14 +36,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { displayName, email } = firebaseUser;
       const createdAt = new Date();
 
+      // Filtrar valores undefined antes de salvar no Firestore
+      const userData: any = {
+        email,
+        role: 'teacher', // Default role
+        createdAt,
+        ...additionalData
+      };
+
+      // Só adiciona displayName se não for undefined
+      if (displayName) {
+        userData.displayName = displayName;
+      }
+
       try {
-        await setDoc(userRef, {
-          displayName,
-          email,
-          role: 'teacher', // Default role
-          createdAt,
-          ...additionalData
-        });
+        await setDoc(userRef, userData);
       } catch (error) {
         console.error('Error creating user document:', error);
       }
@@ -62,9 +69,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return {
         uid: firebaseUser.uid,
         email: firebaseUser.email!,
-        displayName: firebaseUser.displayName || userData.displayName,
+        displayName: firebaseUser.displayName || userData.displayName || undefined,
         role: userData.role || 'teacher',
-        schoolId: userData.schoolId,
+        schoolId: userData.schoolId || undefined,
         createdAt: userData.createdAt?.toDate() || new Date()
       };
     }
@@ -73,7 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return {
       uid: firebaseUser.uid,
       email: firebaseUser.email!,
-      displayName: firebaseUser.displayName ?? undefined,
+      displayName: firebaseUser.displayName || undefined,
       role: 'teacher',
       createdAt: new Date()
     };
@@ -119,6 +126,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (displayName) {
         await updateProfile(result.user, { displayName });
       }
+
+      // Aguardar um pouco para garantir que o perfil foi atualizado
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Criar documento do usuário no Firestore
       await createUserDocument(result.user, { displayName });
@@ -166,27 +176,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
       case 'auth/user-not-found':
-        return 'Usuário não encontrado.';
+        return 'Usuário não encontrado. Verifique se o email está correto.';
       case 'auth/wrong-password':
-        return 'Senha incorreta.';
+        return 'Senha incorreta. Tente novamente.';
+      case 'auth/invalid-credential':
+        return 'Email ou senha incorretos. Verifique suas credenciais.';
+      case 'auth/invalid-email':
+        return 'Email inválido. Verifique o formato do email.';
+      case 'auth/user-disabled':
+        return 'Esta conta foi desabilitada. Entre em contato com o suporte.';
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.';
+      case 'auth/network-request-failed':
+        return 'Erro de conexão. Verifique sua internet e tente novamente.';
       case 'auth/email-already-in-use':
-        return 'Este email já está em uso.';
+        return 'Este email já está em uso. Tente fazer login ou use outro email.';
       case 'auth/weak-password':
         return 'A senha deve ter pelo menos 6 caracteres.';
-      case 'auth/invalid-email':
-        return 'Email inválido.';
-      case 'auth/user-disabled':
-        return 'Esta conta foi desabilitada.';
-      case 'auth/too-many-requests':
-        return 'Muitas tentativas. Tente novamente mais tarde.';
-      case 'auth/network-request-failed':
-        return 'Erro de conexão. Verifique sua internet.';
+      case 'auth/operation-not-allowed':
+        return 'Operação não permitida. Entre em contato com o suporte.';
+      case 'auth/requires-recent-login':
+        return 'Esta operação requer login recente. Faça login novamente.';
       case 'auth/popup-closed-by-user':
-        return 'Login cancelado pelo usuário.';
+        return 'Login cancelado. Tente novamente.';
       case 'auth/cancelled-popup-request':
-        return 'Login cancelado.';
+        return 'Login cancelado. Tente novamente.';
+      case 'auth/popup-blocked':
+        return 'Popup bloqueado pelo navegador. Permita popups para este site.';
+      case 'auth/account-exists-with-different-credential':
+        return 'Já existe uma conta com este email usando outro método de login.';
+      case 'auth/credential-already-in-use':
+        return 'Esta credencial já está sendo usada por outra conta.';
+      case 'auth/invalid-verification-code':
+        return 'Código de verificação inválido.';
+      case 'auth/invalid-verification-id':
+        return 'ID de verificação inválido.';
+      case 'auth/missing-verification-code':
+        return 'Código de verificação necessário.';
+      case 'auth/missing-verification-id':
+        return 'ID de verificação necessário.';
+      case 'auth/quota-exceeded':
+        return 'Limite de requisições excedido. Tente novamente mais tarde.';
+      case 'auth/timeout':
+        return 'Tempo limite excedido. Tente novamente.';
       default:
-        return 'Erro inesperado. Tente novamente.';
+        return 'Erro inesperado. Tente novamente ou entre em contato com o suporte.';
     }
   };
 
