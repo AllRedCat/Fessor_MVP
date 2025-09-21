@@ -85,7 +85,7 @@ export default function NavBar() {
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleClick}
                 >
-                    <Avatar>{letters}</Avatar>
+                    <Avatar sx={{ bgcolor: 'deepskyblue'}}>{letters}</Avatar>
                 </button>
                 <Menu
                     id="basic-menu"
@@ -99,8 +99,8 @@ export default function NavBar() {
                     }}
                 >
                     {/* // TODO: paginas para gestão de usuário */}
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose}>My account</MenuItem>
+                    <MenuItem onClick={() => window.location.href = "/profile"}>Perfil</MenuItem>
+                    {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
                     <MenuItem onClick={handleLogout}>Sair</MenuItem>
                 </Menu>
             </Stack>
