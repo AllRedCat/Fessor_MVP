@@ -108,13 +108,15 @@ export default function LoginPage() {
                         required
                         placeholder="example@email.com"
                         autoComplete="email"
-                        className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1
+                        className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-black outline-1 -outline-offset-1
+                        placeholder:text-black/50 outline-black/50 dark:text-white
                         dark:outline-white/10 dark:placeholder:text-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                     />
                     <label htmlFor="password" className="mt-4">Senha</label>
                     <div
                         className="flex justify-between
-                           min-w-0 flex-auto rounded-md bg-white/5 text-base text-white outline-1 -outline-offset-1
+                           min-w-0 flex-auto rounded-md bg-white/5 text-base text-black outline-1 -outline-offset-1
+                           outline-black/50 dark:text-white
                            dark:outline-white/10 placeholder:text-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/"
                     >
                         <input
@@ -124,12 +126,12 @@ export default function LoginPage() {
                             required
                             placeholder={showPass? "123456789" : "*********" }
                             autoComplete="password"
-                            className="w-full px-3.5 py-2 -outline-offset-1 outline-white rounded-l-md placeholder:text-white
+                            className="w-full px-3.5 py-2 -outline-offset-1 outline-white rounded-l-md placeholder:text-black/50
                                 dark:outline-white/10 dark:placeholder:text-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                         />
                         <button
                             type="button"
-                            className="border-l border-white/5 h-full p-2 cursor-pointer dark:text-gray-300"
+                            className="border-l border-black/50 dark:border-white/5 h-full p-2 cursor-pointer dark:text-gray-300"
                             onClick={() => setShowPass(prev => !prev)}
                         >
                             {showPass ? <Eye /> : <EyeClosed />}
