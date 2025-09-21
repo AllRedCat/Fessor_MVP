@@ -3,31 +3,78 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const [showPass, setShowPass] = useState<boolean>(false);
     const [showConfirmPass, setShowConfirmPass] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { register, loginWithGoogle, error, clearError } = useAuth();
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
+        clearError();
 
         const formData = new FormData(e.currentTarget);
-        const data = {
-            email: formData.get("email"),
-            password: formData.get("password"),
-        };
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        const confirmPassword = formData.get("confirm-password") as string;
 
-        alert(`Email: ${data.email}\nSenha: ${data.password}`);
-    }
+        // Validação de senhas
+        if (password !== confirmPassword) {
+            alert('As senhas não coincidem!');
+            setIsLoading(false);
+            return;
+        }
+
+        if (password.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres!');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            await register(email, password);
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Erro no registro:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        clearError();
+
+        try {
+            await loginWithGoogle();
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Erro no login com Google:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="md:min-w-md py-8 bg-white/30 backdrop-blur-md flex flex-col justify-center items-center rounded-4xl">
             <h1 className="text-3xl font-bold">
                 Registre-se
             </h1>
+            {error && (
+                <div className="w-[80%] mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-md text-red-200 text-sm">
+                    {error}
+                </div>
+            )}
             <button
-                className="w-[80%] p-4 mt-4 bg-white rounded-md text-black font-bold cursor-pointer"
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="w-[80%] p-4 mt-4 bg-white rounded-md text-black font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
             >
                 <Image
                     src="/google_logo.png"
@@ -36,7 +83,7 @@ export default function LoginPage() {
                     height={24}
                     className="inline-block mr-2 align-middle"
                 />
-                Login com Google
+                {isLoading ? 'Entrando...' : 'Registrar com Google'}
             </button>
             <hr className="w-[80%] mt-6 text-white/50" />
             <form
@@ -105,10 +152,11 @@ export default function LoginPage() {
                     </div>
                     <button
                         type="submit"
+                        disabled={isLoading}
                         className="mt-6 p-2 min-w-0 w-full rounded-md bg-emerald-300 text-black
-                            hover:bg-emerald-600 hover:text-white cursor-pointer font-semibold"
+                            hover:bg-emerald-600 hover:text-white cursor-pointer font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        Registre-se
+                        {isLoading ? 'Registrando...' : 'Registre-se'}
                     </button>
                     <button
                         type="button"
