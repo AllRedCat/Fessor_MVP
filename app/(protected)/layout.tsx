@@ -8,8 +8,10 @@ export default function ProtectedLayout({
 }>) {
     return (
         <ProtectedRoute>
-            <NavBar />
-            {children}
+            <div className='w-full h-screen overflow-hidden'>
+                <NavBar />
+                {children}
+            </div>
         </ProtectedRoute>
     );
 }
