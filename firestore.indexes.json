@@ -1,0 +1,189 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "alunos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dadosPessoais.nome",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "alunos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "escolaId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "alunoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadados.status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadados.tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "escolas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ativa",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nome",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "templates_relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "categoria",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nome",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "templates_relatorios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publico",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "usosContador",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "users",
+      "fieldPath": "estatisticas.ultimoAcesso",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "alunos",
+      "fieldPath": "estatisticas.ultimoRelatorio",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    }
+  ]
+}
+

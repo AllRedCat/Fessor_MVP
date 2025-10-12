@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Função auxiliar para verificar se o usuário é o proprietário
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Função auxiliar para verificar se os dados são válidos
+    function isValidData(requiredFields) {
+      return requiredFields.size() == 0 || 
+             requiredFields.difference(resource.data.keys().toSet()).size() == 0;
+    }
+
+    // USUÁRIOS - Professores só podem acessar seus próprios dados
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      // Permitir criação de novos usuários durante o registro
+      allow create: if isAuthenticated() && 
+                   request.auth.uid == userId &&
+                   isValidUserData();
+    }
+    
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'displayName', 'createdAt', 'updatedAt', 'ativo']) &&
+             request.resource.data.email is string &&
+             request.resource.data.displayName is string &&
+             request.resource.data.ativo is bool;
+    }
+
+    // ESCOLAS - Podem ser lidas por usuários autenticados, escritas pelo criador
+    match /escolas/{escolaId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() &&
+                   isValidEscolaData() &&
+                   request.resource.data.ativa == true;
+                   
+      allow update: if isAuthenticated() &&
+                   (resource == null || resource.data.get('createdBy', request.auth.uid) == request.auth.uid) &&
+                   isValidEscolaData();
+                   
+      allow delete: if isAuthenticated() &&
+                   resource.data.get('createdBy', request.auth.uid) == request.auth.uid;
+    }
+    
+    function isValidEscolaData() {
+      return request.resource.data.keys().hasAll(['nome', 'endereco', 'contato', 'secretaria', 'configuracoes', 'ativa']) &&
+             request.resource.data.nome is string &&
+             request.resource.data.endereco is map &&
+             request.resource.data.contato is map &&
+             request.resource.data.secretaria is map &&
+             request.resource.data.configuracoes is map &&
+             request.resource.data.ativa is bool;
+    }
+
+    // ALUNOS - Só podem ser acessados pelo professor que os criou
+    match /alunos/{alunoId} {
+      allow read, write: if isAuthenticated() && 
+                        resource.data.professorId == request.auth.uid;
+                        
+      allow create: if isAuthenticated() &&
+                   request.resource.data.professorId == request.auth.uid &&
+                   isValidAlunoData();
+    }
+    
+    function isValidAlunoData() {
+      return request.resource.data.keys().hasAll([
+               'professorId', 'escolaId', 'dadosPessoais', 'dadosEscolares', 
+               'observacoes', 'estatisticas', 'ativo'
+             ]) &&
+             request.resource.data.professorId is string &&
+             request.resource.data.escolaId is string &&
+             request.resource.data.dadosPessoais is map &&
+             request.resource.data.dadosEscolares is map &&
+             request.resource.data.observacoes is map &&
+             request.resource.data.estatisticas is map &&
+             request.resource.data.ativo is bool &&
+             request.resource.data.dadosPessoais.nome is string &&
+             request.resource.data.dadosPessoais.idade is number &&
+             request.resource.data.dadosEscolares.turma is string &&
+             request.resource.data.dadosEscolares.serie is string;
+    }
+
+    // RELATÓRIOS - Só podem ser acessados pelo professor que os criou
+    match /relatorios/{relatorioId} {
+      allow read, write: if isAuthenticated() && 
+                        resource.data.professorId == request.auth.uid;
+                        
+      allow create: if isAuthenticated() &&
+                   request.resource.data.professorId == request.auth.uid &&
+                   isValidRelatorioData();
+    }
+    
+    function isValidRelatorioData() {
+      return request.resource.data.keys().hasAll([
+               'professorId', 'alunoId', 'escolaId', 'metadados', 'conteudo', 
+               'configuracoes', 'historico'
+             ]) &&
+             request.resource.data.professorId is string &&
+             request.resource.data.alunoId is string &&
+             request.resource.data.escolaId is string &&
+             request.resource.data.metadados is map &&
+             request.resource.data.conteudo is map &&
+             request.resource.data.configuracoes is map &&
+             request.resource.data.historico is list &&
+             request.resource.data.metadados.titulo is string &&
+             request.resource.data.metadados.tipo is string &&
+             request.resource.data.metadados.status is string &&
+             request.resource.data.conteudo.observacoesIniciais is string &&
+             request.resource.data.conteudo.relatorioGerado is string;
+    }
+
+    // TEMPLATES DE RELATÓRIOS - Podem ser lidos por todos, escritos pelo criador
+    match /templates_relatorios/{templateId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() &&
+                   (request.resource.data.professorId == request.auth.uid || 
+                    request.resource.data.professorId == null) &&
+                   isValidTemplateData();
+                   
+      allow update, delete: if isAuthenticated() &&
+                           (resource.data.professorId == request.auth.uid ||
+                            resource.data.professorId == null);
+    }
+    
+    function isValidTemplateData() {
+      return request.resource.data.keys().hasAll(['nome', 'descricao', 'categoria', 'estrutura', 'publico', 'ativo']) &&
+             request.resource.data.nome is string &&
+             request.resource.data.descricao is string &&
+             request.resource.data.categoria is string &&
+             request.resource.data.estrutura is map &&
+             request.resource.data.publico is bool &&
+             request.resource.data.ativo is bool;
+    }
+
+    // CONFIGURAÇÕES DE SISTEMA (apenas para administradores)
+    match /system_config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Apenas através de funções do servidor
+    }
+
+    // LOG DE ATIVIDADES (apenas leitura para o proprietário)
+    match /activity_logs/{logId} {
+      allow read: if isAuthenticated() && 
+                 resource.data.userId == request.auth.uid;
+      allow write: if false; // Apenas através de funções do servidor
+    }
+
+    // Regra padrão - negar acesso a qualquer outra coleção
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
